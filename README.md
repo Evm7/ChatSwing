@@ -7,5 +7,5 @@
 As we can see, ChatClient uses Swing to ease the interaction of user.
 
 The importance of the project was based on the Pattern reactor and the initialitzation of Swing.
-Furthermore, there was a cumpolsary rule of creating two classes based on Socket and ServerSocket which only make try-catch statements in order not to throw exceptions.
+Furthermore, there was a compulsory rule of creating two classes based on Socket and ServerSocket which only make try-catch statements in order not to throw exceptions.
 
