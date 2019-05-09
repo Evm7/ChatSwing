@@ -1,7 +1,5 @@
 package ChatSwing;
 
-
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -13,11 +11,9 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
@@ -29,28 +25,32 @@ public class ChatClient {
     private String username;
     private String state;
 
+    //Swing Objects
     JFrame frame = new JFrame("Chatter");
     JTextField textField = new JTextField(75);
     JList messageArea, userArea;
     DefaultListModel messages, usernames;
 
     public ChatClient() {
+        //First state is ACCEPT, which asks for username
         this.state = "ACCEPT";
 
+        //Create Swing Jframe and containers
+        //Area of messages
         this.messages = new DefaultListModel();
         this.messageArea = new JList(messages);
         this.messageArea.setBackground(new Color(180, 233, 184));
-        
-             
-        TitledBorder titleUsers= new TitledBorder("Users Online");
-        titleUsers.setTitleColor(new Color(91,120, 25));
+        messageArea.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        //Area of Users Online
+        TitledBorder titleUsers = new TitledBorder("Users Online");
+        titleUsers.setTitleColor(new Color(91, 120, 25));
         this.usernames = new DefaultListModel();
         this.userArea = new JList(usernames);
         this.userArea.setBackground(new Color(223, 233, 180));
         this.userArea.setBorder(titleUsers);
 
-        //messageArea.setCellRendered( new CustomListRenderer(messageArea));
-        messageArea.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        //Pack all Jobjects into frmae and organized the visualitzation
         textField.setEditable(false);
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         frame.getContentPane().add(new JScrollPane(userArea), BorderLayout.WEST);
@@ -61,10 +61,12 @@ public class ChatClient {
 
     private void startClient() {
         try {
+            //Create Thread to managed in/outcoming messages from server
             ClientThread clientThread = new ClientThread(this);
             Thread serverAccessThread = new Thread(clientThread);
             serverAccessThread.start();
-            // Send on enter then clear to prepare for next message
+            
+            // Bind enter event as message and output through ClientThread to server
             textField.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     clientThread.addNextMessage(textField.getText());
@@ -73,10 +75,12 @@ public class ChatClient {
             });
             while (serverAccessThread.isAlive()) {
                 switch (state) {
+                    //If ACCEPT State: ask user for username and output to Server
                     case "ACCEPT":
                         clientThread.addNextMessage(this.getName());
                         this.state = "JOIN";
                         break;
+                    //Exit 
                     case "QUIT":
                         return;
                     default:
@@ -87,22 +91,25 @@ public class ChatClient {
         } catch (Exception ex) {
             System.out.println("Error while starting client: " + ex);
         } finally {
+            //If client stops, close Swing Frame
             frame.setVisible(false);
             frame.dispose();
         }
     }
 
+    //Update users connected to the chat
     public void updateUsers(String users) {
         users = users.substring(1, users.length() - 1);
         String[] update;
         if (!users.contains(",")) {
             this.users.add(users);
         } else {
-            this.users = new HashSet<String>(Arrays.asList(users.split(",")));
+            this.users = new HashSet<String>(Arrays.asList(users.split(", ")));
         }
         this.visualizeUsers();
     }
 
+    //Update Users Area
     public void visualizeUsers() {
         usernames.removeAllElements();
         Iterator iterador = users.iterator();
@@ -112,6 +119,7 @@ public class ChatClient {
         }
     }
 
+    //Asked for username
     public String getName() {
         return JOptionPane.showInputDialog(
                 frame,
